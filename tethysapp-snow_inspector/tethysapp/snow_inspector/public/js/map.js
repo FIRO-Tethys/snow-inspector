@@ -1,15 +1,40 @@
 var popupDiv = $('#welcome-popup');
-
+window.app = {};
+var app = window.app;
+var resolutions = [0.5625,0.28125, 0.140625, 0.0703125, 0.03515625, 0.017578125, 0.0087890625, 0.00439453125];
+var matrix_set = '500m';
+var matrx_ids = [0, 1, 2, 3, 4, 5, 6, 7];
+var button1 = document.createElement('IMG');
 $(document).ready(function () {
 
+    //added custom control
+
+    app.CustomToolbarControl = function(){
+
+    button1.setAttribute('src', 'https://raw.githubusercontent.com/FennaHD/snow-inspector/master/' +
+                    'tethysapp-snow_inspector/tethysapp/snow_inspector/public/images/Snow%20Cover%20Legend.png');
+    //button1.innerHTML = 'some button';
+
+    var element = document.createElement('div');
+    element.className = 'ol-mycontrol';
+    element.appendChild(button1);
+
+    ol.control.Control.call(this, {
+        element: element
+    });
+
+    };
+
+    ol.inherits(app.CustomToolbarControl, ol.control.Control);
+    //end of custom control
 
 	var lat = 40.2380;
 	var lon = -111.5500;
-	var map_zoom = 5;
+	var map_zoom = 7;
 
 
 	var modislayer = createModisLayer();
-	var updatemodislayer = updateModisLayer();
+	//var updatemodislayer = updateModisLayer();
 	var pixelBoundaries;
 	var styleCache = {};
 
@@ -66,38 +91,35 @@ $(document).ready(function () {
 	var bing_layer = new ol.layer.Tile({
 		source: new ol.source.BingMaps({
 			imagerySet: 'AerialWithLabels',
-			key: 'AkCPywc954jTLm72zRDvk0JpSJarnJBYPWrNYZB1X8OajN_1DuXj1p5u1Hy2betj'
+			key: 'AkCPywc954jTLm72zRDvk0JpSJarnJBYPWrNYZB1X8OajN_1DuXj1p5u1Hy2betj',
+			wrapX: false
 		}),
-		visibility: false
+		visible: false
 	});
 
     //build OpenStreet map layer
+
+
     var openstreet_layer = new ol.layer.Tile({
-          source: new ol.source.OSM(),
-          visibility: false
+          source: new ol.source.OSM({wrapX: false}),
+          projection: 'EPSG:4326',
+          //tileSize: [512,512],
+          visible: false
 	});
 
-    //build MapQuest map layer
-    var mapQuest_layer = new ol.layer.Tile({
-        source: new ol.source.MapQuest({layer: 'sat'}),
-        visibility: false
+	var new_esri_layer = new ol.layer.Tile({
+	    source: new ol.source.TileWMS({
+	        url:'https://ahocevar.com/geoserver/wms',
+	        params: {'LAYERS': 'ne:NE1_HR_LC_SR_W_DR'},
+	        wrapX: false
+	    }),
+	    visible: true
 	});
 
-    //build Esri map layer
-    var esri_layer = new ol.layer.Tile({
-	source: new ol.source.XYZ({
-		attribution: [new ol.Attribution({
-			html: 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/' +
-			'rest/services/World_Topo_Map/MapServer>ArcGIS</a>'
-		})],
-		url: 'http://server.arcgisonline.com/ArcGIS/rest/services/' +
-		'World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
-		})
-	});
-	baseMapLayer = esri_layer;
 
 	//add geojson layer with tile outlines
 	function add_pixel_boundaries() {
+	    console.log("WAS ACTIVATED!!!");
 
 		var extent = map.getView().calculateExtent(map.getSize());
 
@@ -115,7 +137,7 @@ $(document).ready(function () {
 		console.log(pixel_url)
 
 		var pixel_source = new ol.source.GeoJSON({
-			projection : 'EPSG:3857',
+			projection : 'EPSG:4326',
 			url : pixel_url
 		});
 
@@ -131,7 +153,7 @@ $(document).ready(function () {
 							}),
 							stroke : new ol.style.Stroke({
 								color : '#319FD3',
-								width : 1
+								width : 100
 							}),
 							text : new ol.style.Text({
 								font : '12px sans-serif',
@@ -177,20 +199,20 @@ $(document).ready(function () {
         var selected_value = this.value;
 
 		if (selected_value == "bing") {
-			esri_layer.setVisible(false);
-			mapQuest_layer.setVisible(false);
+			new_esri_layer.setVisible(false);
+			//mapQuest_layer.setVisible(false);
 			openstreet_layer.setVisible(false);
 			bing_layer.setVisible(true);
 		} else if(selected_value=="osm") {
-			esri_layer.setVisible(false);
+			new_esri_layer.setVisible(false);
 			bing_layer.setVisible(false);
-			mapQuest_layer.setVisible(false);
+			//mapQuest_layer.setVisible(false);
 			openstreet_layer.setVisible(true);
 		} else if(selected_value=="esri") {
 			bing_layer.setVisible(false);
-			mapQuest_layer.setVisible(false);
+			//mapQuest_layer.setVisible(false);
 			openstreet_layer.setVisible(false);
-			esri_layer.setVisible(true);
+			new_esri_layer.setVisible(true);
 		}
 		// save the selected value
 		$('#layer').val(selected_value);
@@ -199,25 +221,45 @@ $(document).ready(function () {
     $("#selectLayer").change(function() {
         var selected_layer = this.value;
         var layer1 = "MODIS_Terra_NDSI_Snow_Cover";
-        var level = "8";
-        var zoom1 = 8;
+        var level, zoom1;
         modislayer.setVisible(true);
 
         if (selected_layer == "snowCover") {
             layer1 = "MODIS_Terra_NDSI_Snow_Cover";
             level = "8";
             zoom1 = 8;
+            resolutions = [0.5625,0.28125, 0.140625, 0.0703125, 0.03515625, 0.017578125, 0.0087890625, 0.00439453125];
+            matrix_set = '500m';
+            matrix_ids = [0, 1, 2, 3, 4, 5, 6, 7];
+            button1.setAttribute('src', 'https://raw.githubusercontent.com/FennaHD/snow-inspector/master/' +
+                    'tethysapp-snow_inspector/tethysapp/snow_inspector/public/images/Snow%20Cover%20Legend.png');
+            button1.setAttribute('style', 'display:inline-block');
         } else if (selected_layer == "snowMass") {
             layer1 = "SMAP_L4_Snow_Mass";
             level = "6";
             zoom1 = 6;
+            resolutions = [0.5625,0.28125, 0.140625, 0.0703125, 0.03515625, 0.017578125];
+            matrix_set = '2km';
+            matrix_ids = [0, 1, 2, 3, 4, 5];
+            button1.setAttribute('src', 'https://raw.githubusercontent.com/FennaHD/snow-inspector/master/' +
+                    'tethysapp-snow_inspector/tethysapp/snow_inspector/public/images/Snow%20Mass%20Legend.png');
+            button1.setAttribute('style', 'display:inline-block');
         } else if (selected_layer == "snowWaterEquivalent") {
             layer1 = "AMSR2_Snow_Water_Equivalent";
             level = "6";
             zoom1 = 6;
+            resolutions = [0.5625,0.28125, 0.140625, 0.0703125, 0.03515625, 0.017578125];
+            matrix_set = '2km';
+            matrix_ids = [0, 1, 2, 3, 4, 5];
+            button1.setAttribute('src', 'https://raw.githubusercontent.com/FennaHD/snow-inspector/master/' +
+                    'tethysapp-snow_inspector/tethysapp/snow_inspector/public/images/Snow%20Water%20Equivalent%20Legend.png');
+            button1.setAttribute('style', 'display:inline-block');
         } else if (selected_layer == "none") {
             if (modislayer.getVisible()) {
                 modislayer.setVisible(false);
+                button1.setAttribute('style', 'display:none');
+            } else {
+                button1.setAttribute('style', 'display:inline-block');
             }
         }
 
@@ -225,6 +267,10 @@ $(document).ready(function () {
         $("#layer1").val(layer1);
         $("#level1").val(level);
         $("#zoom1").val(zoom1);
+        $("#resolutions").val(resolutions);
+        $("#matrix_set").val(matrix_set);
+        console.log(matrix_set);
+        $("#matrix_ids").val(matrix_ids);
         updateModisLayer();
     });
 
@@ -249,33 +295,56 @@ $(document).ready(function () {
 		return vars;
 	}
 
-	function createModisLayer() {
 
-		var modisDate = $("#endDate").val();
-		var modisUrl = "//map1.vis.earthdata.nasa.gov/wmts/epsg3857/best/" +
-				"MODIS_Terra_NDSI_Snow_Cover/default/" + modisDate +
-				"/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png";
-		var modis = new ol.source.XYZ({
-			url: modisUrl
-		});
-
-		$("#layer1").val("MODIS_Terra_NDSI_Snow_Cover");
-		$("#level1").val("8");
-		$("#zoom1").val(8);
-        return new ol.layer.Tile({source: modis});
+	function createModisLayer () {
+	    $("#zoom1").val(8);
+	    $("#layer1").val("MODIS_Terra_NDSI_Snow_Cover");
+	    $("#level1").val("8");
+	    var modis = new ol.source.WMTS({
+	        url: 'https://gibs-{a-c}.earthdata.nasa.gov/wmts/epsg4326/best/wmts.cgi?TIME='
+	                + $("#endDate").val(),
+            layer: 'MODIS_Terra_NDSI_Snow_Cover',
+            format: 'image/png',
+            matrixSet: 'EPSG4326_' + '500m',
+            tileGrid: new ol.tilegrid.WMTS({
+              origin: [-180, 90],
+              resolutions: [
+                0.5625,
+                0.28125,
+                0.140625,
+                0.0703125,
+                0.03515625,
+                0.017578125,
+                0.0087890625,
+                0.00439453125
+              ],
+              matrixIds: [0, 1, 2, 3, 4, 5, 6, 7],
+              tileSize: 512
+            }),
+            wrapX: false
+	    });
+	    return new ol.layer.Tile({source: modis});
 	}
+
 
 	function updateModisLayer() {
 		var modisDate1 = $("#endDate").val();
-		console.log(modisDate1);
+		console.log(typeof modisDate1 + " " + modisDate1);
 
-		var modisUrl1 = "//map1{a-c}.vis.earthdata.nasa.gov/wmts/epsg3857/best/" +
-				$("#layer1").val() + "/default/" + modisDate1 +
-				"/GoogleMapsCompatible_Level" + $("#level1").val() + "/{z}/{y}/{x}.png"
-		console.log(modisUrl1);
-		var modisSource = new ol.source.XYZ({
-			url: modisUrl1
-		});
+		var modisSource = new ol.source.WMTS({
+            url: 'https://gibs-{a-c}.earthdata.nasa.gov/wmts/epsg4326/best/wmts.cgi?TIME=' +
+                    modisDate1,
+            layer: $("#layer1").val(),
+            format: 'image/png',
+            matrixSet: 'EPSG4326_' + matrix_set,
+            tileGrid: new ol.tilegrid.WMTS({
+              origin: [-180, 90],
+              resolutions: resolutions,
+              matrixIds: matrix_ids,
+              tileSize: 512
+            }),
+            wrapX: false
+          });
 		modislayer.setSource(modisSource);
 	}
 
@@ -302,15 +371,22 @@ $(document).ready(function () {
 
 
 map = new ol.Map({
-	layers: [mapQuest_layer, bing_layer, openstreet_layer, esri_layer, modislayer],
-	controls: ol.control.defaults(),
+	layers: [new_esri_layer, bing_layer, openstreet_layer, modislayer/*,esri_layer, modislayer, mapQuest_layer*/],
+	controls: ol.control.defaults().extend([new app.CustomToolbarControl()]),
 	target: document.getElementById('map_view'),
+	//renderer: ['canvas', 'dom'],
 	view: new ol.View({
-		center: [0, 0],
+	    projection: ol.proj.get('EPSG:4326'),
+	    //extent: [-180,90,180,-90],
+	    //minZoom:1,
+		center: [0,0],
+		minZoom: 2,
 		zoom: map_zoom
 	})
+
 });
 
+console.log(map_zoom);
 	// checking zoom end
 	map.getView().on('propertychange', function(e) {
 	   switch (e.key) {
@@ -327,7 +403,7 @@ map = new ol.Map({
 	   }
 	});
 
-var source = new ol.source.Vector();
+var source = new ol.source.Vector({wrapX: false});
 var vector = new ol.layer.Vector({
   source: source,
   style: new ol.style.Style({
@@ -364,9 +440,11 @@ function addPoint(coordinates){
 }
 
 function addPointLonLat(coordinates){
-	var coords = ol.proj.transform(coordinates, 'EPSG:4326','EPSG:3857');
+	var coords = coordinates;//ol.proj.transform(coordinates, 'EPSG:4326','EPSG:3857');
+	console.log(coords);
 	addPoint(coords);
 	map.getView().setCenter(coords);
+	console.log(coords);
 }
 
 function refreshDate(){
@@ -378,7 +456,7 @@ function refreshDate(){
 var coords = [lon, lat];
 console.log(coords);
 addPointLonLat(coords);
-
+console.log(coords);
 
 $("#inputDays").val($("#inputDays").attr("placeholder"));
 $("#inputLon").val(lon);
@@ -390,7 +468,8 @@ map.on('click', function(evt) {
 	addPoint(coordinate);
 	//now update lat and long in textbox
 
-	var lonlat = ol.proj.transform(coordinate, 'EPSG:3857', 'EPSG:4326');
+	var lonlat = coordinate;//ol.proj.transform(coordinate, 'EPSG:3857', 'EPSG:4326');
+	console.log(coordinate);
 	$("#inputLon").val(lonlat[0].toFixed(6));
 	$("#inputLat").val(lonlat[1].toFixed(6));
 	if (lonlat[0] < -180) {
