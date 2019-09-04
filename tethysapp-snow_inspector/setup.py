@@ -14,9 +14,8 @@ dependencies = []
 
 setup(
     name=release_package,
-    version='0.0.1',
-    tags='',
-    description='My first real project. Exciting shiz.',
+    version='3.0.0',
+    description='Snow Inspector',
     long_description='',
     keywords='',
     author='',
