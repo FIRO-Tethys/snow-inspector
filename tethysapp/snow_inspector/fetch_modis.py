@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import matplotlib.pyplot as plt
 """
 Created on Wed Oct 15 22:18:08 2014
 @author: Jiri
@@ -10,7 +11,9 @@ Requires: pyPNG
 import math
 import datetime
 import png
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import pandas as pd
 import numpy as np
 
@@ -105,7 +108,6 @@ lon1 = -111.5573
 lat = 40.2455
 lon = -111.6500
 
-import matplotlib.pyplot as plt
 
 beginDate = datetime.date(2014, 10, 1)
 endDate = datetime.date(2015, 1, 21)

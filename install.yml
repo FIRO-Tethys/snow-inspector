@@ -1,0 +1,15 @@
+version: 3.0
+name: snow_inspector
+
+requirements:
+  skip: false
+  conda:
+    channels:
+      - conda-forge
+    packages:
+      - pyshp=2.0.0
+      - geojson
+      - shapely
+      - pypng
+  pip:
+    - see

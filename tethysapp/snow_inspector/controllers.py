@@ -16,6 +16,7 @@ from tethys_services.backends.hs_restclient_helper import get_oauth_hs
 
 hs_hostname = "www.hydroshare.org"
 
+
 def snow_graph(request):
     """
     Controller that will show the snow graph for user-defined lat / lon.
@@ -45,13 +46,15 @@ def snow_graph(request):
         level1 = request.GET['level']
 
         # Make the waterml url query string
-        waterml_url = '?start=%s&end=%s&lat=%s&lon=%s&layer=%s&level=%s&zoom=%s' % (startDate2, endDate, lat, lon, layer, zoom1, level1)
+        waterml_url = '?start=%s&end=%s&lat=%s&lon=%s&layer=%s&level=%s&zoom=%s' % (
+            startDate2, endDate, lat, lon, layer, zoom1, level1)
 
         # Make the map url query string
         map_url = '?days=%s&end=%s&lat=%s&lon=%s&zoom=%s' % (numdays, endDate, lat, lon, zoom)
 
     # Create template context dictionary
-    context = {'layer1': layer, 'zoom1':zoom1, 'level1':level1, 'lat' :lat, 'lon' :lon, 'startDate' :startDate2, 'endDate': endDate, 'waterml_url': waterml_url, 'map_url': map_url}
+    context = {'layer1': layer, 'zoom1': zoom1, 'level1': level1, 'lat': lat, 'lon': lon,
+               'startDate': startDate2, 'endDate': endDate, 'waterml_url': waterml_url, 'map_url': map_url}
 
     return render(request, 'snow_inspector/snow_graph.html', context)
 
@@ -98,10 +101,10 @@ def upload_to_hydroshare(request):
                 raise
 
     except ObjectDoesNotExist as e:
-        print(str(e))
+        print((str(e)))
         return_json['error'] = 'Object doesn"t exist: Login timed out! Please re-sign in with your HydroShare account.'
     except TokenExpiredError as e:
-        print(str(e))
+        print((str(e)))
         return_json['error'] = 'Login timed out! Please re-sign in with your HydroShare account.'
     except Exception as err:
         if "401 Unauthorized" in str(err):

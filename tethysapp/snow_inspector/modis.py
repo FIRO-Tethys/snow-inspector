@@ -1,7 +1,9 @@
 import math
 import datetime
 import png
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 
 from django.http import JsonResponse
 from django.shortcuts import render_to_response
@@ -39,8 +41,9 @@ def getTileURL(xtile, ytile, date, zoom, layer, level):
     #zoom = 8
     return baseURL.format(layer, time, tileMatrix, level, zoom, ytile, xtile)
 
+
 def getTileURL2(xtile, ytile, date, zoom, layer):
-    #need layer, time, tileMatrix, zoom, ytile, xtile
+    # need layer, time, tileMatrix, zoom, ytile, xtile
     baseURL = 'http://map1.vis.earthdata.nasa.gov/wmts/epsg4326/best/' + \
               '{0}/default/{1}/{2}/{3}/{4}/{5}.png'
     if layer is None:
@@ -50,9 +53,8 @@ def getTileURL2(xtile, ytile, date, zoom, layer):
     return baseURL.format(layer, time, tileMatrix, zoom, ytile, xtile)
 
 
-
 def getTileURLTemplate(xtile, ytile, zoom, layer):
-    #I need the tileMatrix, correct zoom, xtile and ytile
+    # I need the tileMatrix, correct zoom, xtile and ytile
     baseURL = 'http://map1.vis.earthdata.nasa.gov/wmts/epsg4326/best/' + \
               '{0}/default/{1}/{2}/{3}/{4}/{5}.png'
     #layer = 'MODIS_Terra_NDSI_Snow_Cover'
@@ -91,7 +93,7 @@ def getTimeSeries2(lat, lon, beginDate, endDate, zoom, layer):
     return ts
 
 
-def pixelValueToSnowPercent(pixel_val, layer_name): #image_date used to be a parameter
+def pixelValueToSnowPercent(pixel_val, layer_name):  # image_date used to be a parameter
     # the GIBS imagery service uses an "indexed image" png format.
     # each pixel has an index (between 0 and 255)
     # the built-in PNG color table is then used to convert each index to
@@ -111,10 +113,10 @@ def pixelValueToSnowPercent(pixel_val, layer_name): #image_date used to be a par
     elif layer_name == "AMSR2_Snow_Water_Equivalent":
         snow_val = pixel_val
 
-    return (math.floor(snow_val * 10) / 10) #makes value a float with one decimal (brought down, not approximated)
+    return (math.floor(snow_val * 10) / 10)  # makes value a float with one decimal (brought down, not approximated)
 
 
-#function used so that pixel values above chart go to zero
+# function used so that pixel values above chart go to zero
 def pixelSnowVal(pixel_val, layer_name):
     if layer_name == "MODIS_Terra_NDSI_Snow_Cover":
         if pixel_val > 100:
@@ -135,7 +137,7 @@ def pixelSnowVal(pixel_val, layer_name):
         else:
             snow_val = 2 * pixel_val
 
-    return (math.floor(snow_val * 10) / 10) #makes value a float with one decimal (brought down, not approximated)
+    return (math.floor(snow_val * 10) / 10)  # makes value a float with one decimal (brought down, not approximated)
 
 
 def xCoordinateToLongitude(x, zoom):
@@ -427,14 +429,14 @@ def get_pixel_borders2(request):
         lonmax = float(request.GET["lonmax"])
         latmax = float(request.GET["latmax"])
         layer = request.GET["layer"]
-        level = request.GET["level"] #not used yet
-        zoom = request.GET["zoom"] #not used yet
+        level = request.GET["level"]  # not used yet
+        zoom = request.GET["zoom"]  # not used yet
         tileDate = datetime.datetime.strptime(request.GET["date"], "%Y-%m-%d")
 
-        #making zoom a number
+        # making zoom a number
         zoom = int(zoom)
 
-        #get zoom for big tiles
+        # get zoom for big tiles
         zoom2 = get_zoom(zoom)
 
         # to get the bottom-right

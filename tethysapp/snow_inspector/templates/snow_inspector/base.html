@@ -18,6 +18,12 @@
 {% block app_title %}Snow Inspector{% endblock %}
 
 {% block header_buttons %}
+<div class="header-button glyphicon-button" data-toggle="tooltip" data-placement="bottom" title="Instructions">
+    <a data-toggle="modal" data-placement="bottom" data-target="#welcome-popup" title="Instructions" style="cursor:pointer;"><span class="glyphicon glyphicon-question-sign"></span></a>
+</div>
+<div class="header-button glyphicon-button" data-toggle="tooltip" data-placement="bottom" title="Source Code">
+    <a href="https://github.com/BYU-Hydroinformatics/snow-inspector" target="_blank"><span class="glyphicon glyphicon-info-sign"></span></a>
+</div>
 {% endblock %}
 
 {% block app_navigation_items %}
