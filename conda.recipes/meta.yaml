@@ -1,0 +1,37 @@
+# Conda Recipe for App Installation
+{% set data = load_setup_py_data(setup_file='../setup.py', from_recipe_dir=True) %}
+
+package:
+  name: snow_inspector
+  version: {{ data.get('version') }}
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  script: python setup.py install --record=record.txt
+  preserve_egg_dir: True
+
+
+requirements:
+  build:
+    - python
+  run:
+    - pyshp=2.0.0
+    - geojson
+    - shapely
+    - pypng
+   
+outputs:
+  - name: snow_inspector
+
+about:
+  author: {{ data.get('author')}}
+  description: {{ data.get('description')}}
+  license: BSD 3-Clause License
+  license_family: BSD
+
+extra:
+  recipe-maintainers:
+    - rohitkhattar
