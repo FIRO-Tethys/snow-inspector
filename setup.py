@@ -1,5 +1,5 @@
 from setuptools import setup, find_namespace_packages
-from tethys_apps.app_installation import find_resource_files
+from setup_helper import find_resource_files
 
 # -- Apps Definition -- #
 app_package = 'snow_inspector'
@@ -13,6 +13,8 @@ resource_files += find_resource_files('tethysapp/' + app_package + '/workspaces'
 # -- Python Dependencies -- #
 dependencies = []
 
+resource_files += find_resource_files('tethysapp/' + app_package + '/scripts', 'tethysapp/' + app_package)
+resource_files += find_resource_files('tethysapp/' + app_package + '/scripts', 'tethysapp/' + app_package)
 setup(
     name=release_package,
     version='3.0.0',
