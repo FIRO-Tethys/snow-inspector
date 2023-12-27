@@ -8,17 +8,17 @@ package:
 about:
   author: {{ data.get('author')}}
   description: {{ data.get('description')}}
-  license: {{ data.get('license')}}
-  dev_url: {{ data.get('url') }}
+  license: "{'name': 'release_package', 'version': '3.0.0', 'description': 'Snow Inspector', 'long_description': '', 'author': '', 'author_email': '', 'url': '', 'license': '', 'app_package': 'snow_inspector', 'tethys_version': '<=3.4.4', 'dev_url': 'https://github.com/tethysapp/snow-inspector'}"
+  dev_url: {{ data.get('dev_url') }}
 
 outputs:
   - name: {{ name }}
-
 extra:
-  author_email:  {{ data.get('author_email')}}
-  keywords: {{ data.get('keywords')}}
+  author_email: ''
+  keywords: []
   recipe-maintainers:
-    - TethysAppWarehouse
+  - TethysAppWarehouse
+
 build:
   noarch: python
   preserve_egg_dir: true
